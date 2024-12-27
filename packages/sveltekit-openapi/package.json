@@ -1,0 +1,11 @@
+{
+	"name": "sveltekit-openapi-monorepo",
+	"version": "0.0.1",
+	"description": "monorepo for sveltekit-openapi",
+	"license": "MIT",
+	"private": true,
+	"packageManager": "pnpm@9.12.2",
+	"type": "module",
+	"scripts": {
+	}
+}
