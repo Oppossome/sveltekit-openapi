@@ -63,12 +63,8 @@ export default ts.config(
 					groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
 				},
 			],
-			"import/no-unresolved": [
-				"error",
-				{
-					ignore: ["^\\$env", "^\\$app"],
-				},
-			],
+			// Due to issues it has with the monorepo
+			"import/no-unresolved": "off",
 			// eslint-plugin-import has an issue with incorrectly simplifying svelte/store imports into svelte
 			// https://github.com/import-js/eslint-plugin-import/issues/1479
 			"import/no-duplicates": "off",
@@ -87,6 +83,6 @@ export default ts.config(
 		},
 	},
 	{
-		ignores: ["build/", ".svelte-kit/", "dist/"],
+		ignores: ["**/build/", "**/.svelte-kit/", "**/dist/"],
 	},
 )

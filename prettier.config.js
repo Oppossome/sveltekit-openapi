@@ -11,6 +11,7 @@ export default {
 	 */
 	useTabs: true,
 	semi: false,
+	printWidth: 100,
 	plugins: ["prettier-plugin-svelte"],
 	overrides: [
 		{
