@@ -1,16 +1,15 @@
 import { sveltekit } from "@sveltejs/kit/vite"
-import { defineConfig } from "vite"
+import { defineConfig } from "vitest/config"
 
 export default defineConfig({
 	plugins: [sveltekit()],
-	build: {
-		minify: false,
-		output: {
-			// remove hashes from output paths
-			// https://github.com/vitejs/vite/issues/378
-			entryFileNames: `assets/[name].js`,
-			chunkFileNames: `assets/[name].js`,
-			assetFileNames: `assets/[name].[ext]`,
-		},
+	test: {
+		/**
+		 * Ensures no state is leaked between tests.
+		 * https://vitest.dev/config/#mockreset
+		 */
+		mockReset: true,
+		globals: true,
+		include: ["src/**/*.{test,spec}.{js,ts}"],
 	},
 })

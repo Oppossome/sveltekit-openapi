@@ -1,9 +1,9 @@
-import { define } from "sveltekit-openapi"
+import { collectHandlers, defineHandler } from "sveltekit-openapi"
 import { z } from "zod"
 
 import { newTodoSchema, todoSchema, todosStore } from "$lib/server"
 
-export const GET = define(
+export const GET = defineHandler(
 	{
 		operationId: "getTodos",
 		parameters: {
@@ -17,7 +17,9 @@ export const GET = define(
 			}),
 		},
 	},
-	({ params, json }) => {
+	async ({ params, json }) => {
+		console.log(await collectHandlers())
+
 		if (params.query.search) {
 			const searchStr = params.query.search.toLowerCase()
 			return json(200, { todos: todosStore.filter((item) => item.title.includes(searchStr)) })
@@ -27,7 +29,7 @@ export const GET = define(
 	},
 )
 
-export const POST = define(
+export const POST = defineHandler(
 	{
 		operationId: "createTodo",
 		requestBody: newTodoSchema,

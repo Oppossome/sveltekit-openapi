@@ -10,6 +10,12 @@
 		"sourceMap": true,
 		"strict": true,
 		"module": "NodeNext",
-		"moduleResolution": "NodeNext"
+		"moduleResolution": "NodeNext",
+
+		/** 
+			Testing Globals
+			see: https://vitest.dev/config/#globals
+		*/
+		"types": ["vitest/globals"]
 	}
 }

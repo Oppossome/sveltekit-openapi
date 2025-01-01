@@ -1,4 +1,4 @@
-import { define } from "sveltekit-openapi"
+import { configToOperation, defineHandler, getHandlerConfig } from "sveltekit-openapi"
 import { z } from "zod"
 
 import { newTodoSchema, todoSchema, todosStore } from "$lib/server"
@@ -7,7 +7,7 @@ const pathSchema = z.object({
 	todo_id: z.string().uuid(),
 })
 
-export const GET = define(
+export const GET = defineHandler(
 	{
 		operationId: "getTodo",
 		parameters: { path: pathSchema },
@@ -17,6 +17,8 @@ export const GET = define(
 		},
 	},
 	({ params, json }) => {
+		console.log(configToOperation(getHandlerConfig(GET)))
+
 		const todo = todosStore.find((item) => item.id === params.path.todo_id)
 		if (!todo) return json(404, { message: `Todo with ID ${params.path.todo_id} not found!` })
 
@@ -24,7 +26,7 @@ export const GET = define(
 	},
 )
 
-export const PATCH = define(
+export const PATCH = defineHandler(
 	{
 		operationId: "patchTodo",
 		parameters: { path: pathSchema },

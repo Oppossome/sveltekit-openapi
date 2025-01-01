@@ -68,6 +68,7 @@ export default ts.config(
 			// eslint-plugin-import has an issue with incorrectly simplifying svelte/store imports into svelte
 			// https://github.com/import-js/eslint-plugin-import/issues/1479
 			"import/no-duplicates": "off",
+			"@typescript-eslint/no-explicit-any": "off",
 			"@typescript-eslint/no-unused-vars": [
 				"error",
 				{
