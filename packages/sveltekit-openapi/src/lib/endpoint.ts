@@ -266,6 +266,5 @@ export async function generateDocument(
 		}
 	}
 
-	console.log(document)
 	return document
 }
