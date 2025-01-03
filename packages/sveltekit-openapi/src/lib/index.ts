@@ -1,2 +1,2 @@
-export * as Endpoint from "./endpoint.js"
-export { configToOperation, collectHandlers, defineHandler, getHandlerConfig } from "./endpoint.js"
+export { api } from "./api.js"
+export type { EndpointConfig, EndpointCallback } from "./api.types.js"
