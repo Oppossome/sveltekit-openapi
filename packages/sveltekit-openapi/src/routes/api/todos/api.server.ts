@@ -24,6 +24,9 @@ export const schemas = {
 	}),
 }
 
+export type NewTodo = z.infer<typeof schemas.newTodo>
+export type Todo = z.infer<typeof schemas.todo>
+
 export const todosStore = new Map<string, z.infer<typeof schemas.todo>>(
 	Array.from({ length: 3 }, (_, idx) => {
 		const randomUUID = crypto.randomUUID()

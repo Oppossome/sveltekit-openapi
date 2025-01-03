@@ -1,12 +1,9 @@
 import { error, json, type RequestHandler } from "@sveltejs/kit"
 import { OpenAPIV3 } from "openapi-types"
 import type { z } from "zod"
-import { zodToJsonSchema } from "zod-to-json-schema"
 
 import type * as Types from "./api.types.js"
-import { isJSONSchemaObject } from "./utils.js"
-import { collectEndpoints } from "./collect.js"
-export type * as Types from "./api.types.js"
+import { apiToOAPIDocument } from "./translate.js"
 
 // MARK: endpointJsonFn
 
@@ -33,7 +30,7 @@ export class Endpoint<
 	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
 > {
 	_api: API<Tags> // Used for collection
-	#config: Types.EndpointConfig<Tags, Responses, Body, Path, Query>
+	_config: Types.EndpointConfig<Tags, Responses, Body, Path, Query>
 	#callback: Types.EndpointCallback<Responses, Body, Path, Query>
 
 	constructor(
@@ -42,7 +39,7 @@ export class Endpoint<
 		callback: Types.EndpointCallback<Responses, Body, Path, Query>,
 	) {
 		this._api = api
-		this.#config = config
+		this._config = config
 		this.#callback = callback
 	}
 
@@ -50,101 +47,35 @@ export class Endpoint<
 		type Event = Parameters<Types.EndpointCallback<Responses, Body, Path, Query>>[0]
 		const params = { body: undefined, path: undefined, query: undefined } as Event["params"]
 
-		if (this.#config.requestBody) {
+		if (this._config.requestBody) {
 			const bodyJson = await event.request.json()
-			const parsedBody = await this.#config.requestBody.safeParseAsync(bodyJson)
+			const parsedBody = await this._config.requestBody.safeParseAsync(bodyJson)
 			if (!parsedBody.success) return error(400)
 
 			params.body = parsedBody.data as Event["params"]["body"]
 		}
 
-		if (this.#config.parameters?.query) {
+		if (this._config.parameters?.query) {
 			const queryParams = Object.fromEntries(event.url.searchParams)
-			const parsedQueryParams = await this.#config.parameters.query.safeParseAsync(queryParams)
+			const parsedQueryParams = await this._config.parameters.query.safeParseAsync(queryParams)
 			if (!parsedQueryParams.success) return error(400)
 
 			params.query = parsedQueryParams.data as Event["params"]["query"]
 		}
 
-		if (this.#config.parameters?.path) {
-			const parsedPathParams = await this.#config.parameters.path.safeParseAsync(event.params)
+		if (this._config.parameters?.path) {
+			const parsedPathParams = await this._config.parameters.path.safeParseAsync(event.params)
 			if (!parsedPathParams.success) return error(400)
 
 			params.path = parsedPathParams.data as Event["params"]["path"]
 		}
 
 		return await this.#callback({
-			json: endpointJsonFn(this.#config),
+			json: endpointJsonFn(this._config),
 			...event,
 			params,
 		})
 	})
-
-	async generateOperation(): Promise<OpenAPIV3.OperationObject> {
-		const { parameters, requestBody, responses, ...configRest } = this.#config
-		const operation: OpenAPIV3.OperationObject = { ...configRest, responses: {} }
-
-		if (parameters?.path) {
-			const pathSchema = zodToJsonSchema(parameters.path, { target: "openApi3" }) as unknown
-			if (isJSONSchemaObject(pathSchema) && pathSchema.properties) {
-				for (const [name, details] of Object.entries(pathSchema.properties)) {
-					operation.parameters ??= []
-					operation.parameters.push({
-						name: name,
-						in: "path",
-						required: pathSchema.required && pathSchema.required.includes(name),
-						// @ts-expect-error - TODO
-						...details,
-					})
-				}
-			}
-		}
-
-		if (parameters?.query) {
-			const querySchema = zodToJsonSchema(parameters.query, { target: "openApi3" }) as unknown
-
-			if (isJSONSchemaObject(querySchema) && querySchema.properties) {
-				for (const [name, details] of Object.entries(querySchema.properties)) {
-					operation.parameters ??= []
-					operation.parameters.push({
-						name,
-						in: "query",
-						required: querySchema.required && querySchema.required.includes(name),
-						// @ts-expect-error - TODO
-						...details,
-					})
-				}
-			}
-		}
-
-		if (requestBody) {
-			const bodySchema = zodToJsonSchema(requestBody, { target: "openApi3" }) as unknown
-			if (isJSONSchemaObject(bodySchema)) {
-				operation.requestBody = {
-					content: {
-						"application/json": {
-							schema: bodySchema as OpenAPIV3.SchemaObject,
-						},
-					},
-				}
-			}
-		}
-
-		for (const [status, schema] of Object.entries(responses)) {
-			const responseSchema = zodToJsonSchema(schema, { target: "openApi3" }) as unknown
-			if (isJSONSchemaObject(responseSchema)) {
-				operation.responses[status] = {
-					content: {
-						"application/json": {
-							schema: responseSchema as OpenAPIV3.SchemaObject,
-						},
-					},
-				}
-			}
-		}
-
-		return operation
-	}
 
 	static #lookupSymbol = Symbol()
 	static #applyLookupSymbol(
@@ -169,10 +100,10 @@ export class Endpoint<
 export class API<
 	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
 > {
-	#baseDocument: Types.BaseV3Document<Tags>
+	_baseDocument: Types.BaseV3Document<Tags>
 
 	constructor(baseDocument: Types.BaseV3Document<Tags>) {
-		this.#baseDocument = baseDocument
+		this._baseDocument = baseDocument
 	}
 
 	endpoint<
@@ -187,25 +118,8 @@ export class API<
 		return new Endpoint(this, config, callback).requestHandler
 	}
 
-	async generateDocument(): Promise<OpenAPIV3.Document> {
-		const document: OpenAPIV3.Document = {
-			...this.#baseDocument,
-			openapi: "3.0.0",
-			paths: {},
-		}
-
-		const collectedEndpoints = await collectEndpoints()
-		for (const [path, endpoints] of Object.entries(collectedEndpoints)) {
-			for (const [method, endpoint] of Object.entries(endpoints)) {
-				if (endpoint._api !== this) continue
-				document.paths[path] ??= {}
-
-				// @ts-expect-error - TODO
-				document.paths[path][method] = await endpoint.generateOperation()
-			}
-		}
-
-		return document
+	async generateOpenAPI(): Promise<OpenAPIV3.Document> {
+		return apiToOAPIDocument(this)
 	}
 
 	static create<Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined>(
@@ -218,3 +132,5 @@ export class API<
 // MARK: api()
 
 export const api = API.create
+
+export * as Types from "./api.types.js"

@@ -1,5 +1,24 @@
 import { Endpoint } from "./api.js"
 
+// MARK: resolveRoutes
+
+export function resolveRoutes(filePath: string): string[] {
+	const rawPath = filePath.match(/\/src\/routes(\/.*)\/\+server\.(?:js|ts)$/)?.[1]
+	if (!rawPath) return []
+
+	// Strip and translate SvelteKit routing paths into their real locations
+	const cleansedPath = rawPath
+		.replace(/\[x\+([0-9A-F]{2})\]/gi, (_, code) => String.fromCharCode(parseInt(code, 16))) // Hex Code
+		.replace(/\[u\+([0-9A-F]+)\]/gi, (_, code) => String.fromCodePoint(parseInt(code, 16))) // Unicode
+		.replace(/\/?\(.*?\)/g, "") // Route Groups
+		.replace(/\[(\w+)(?:=\w+)?\]/g, "{$1}") // Parameter Validation
+		.replace(/\[\[(\w+)(?:=\w+)?\]\]/g, "{{$1}}") // Optional Parameter Validation
+
+	// TODO: Optional Parameter Splitting
+
+	return [cleansedPath]
+}
+
 // MARK: collectEndpoints
 
 const httpMethods = ["get", "put", "post", "delete", "options", "head", "patch", "trace"] as const
@@ -51,23 +70,4 @@ export async function collectEndpoints(
 	}
 
 	return collected
-}
-
-// MARK: resolveRoutes
-
-export function resolveRoutes(filePath: string): string[] {
-	const rawPath = filePath.match(/\/src\/routes(\/.*)\/\+server\.(?:js|ts)$/)?.[1]
-	if (!rawPath) return []
-
-	// Strip and translate SvelteKit routing paths into their real locations
-	const cleansedPath = rawPath
-		.replace(/\[x\+([0-9A-F]{2})\]/gi, (_, code) => String.fromCharCode(parseInt(code, 16))) // Hex Code
-		.replace(/\[u\+([0-9A-F]+)\]/gi, (_, code) => String.fromCodePoint(parseInt(code, 16))) // Unicode
-		.replace(/\/?\(.*?\)/g, "") // Route Groups
-		.replace(/\[(\w+)(?:=\w+)?\]/g, "{$1}") // Parameter Validation
-		.replace(/\[\[(\w+)(?:=\w+)?\]\]/g, "{{$1}}") // Optional Parameter Validation
-
-	// TODO: Optional Parameter Splitting
-
-	return [cleansedPath]
 }
