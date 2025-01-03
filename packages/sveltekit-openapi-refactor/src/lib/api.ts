@@ -1,8 +1,11 @@
 import { error, json, type RequestHandler } from "@sveltejs/kit"
 import { OpenAPIV3 } from "openapi-types"
 import type { z } from "zod"
+import { zodToJsonSchema } from "zod-to-json-schema"
 
 import type * as Types from "./api.types.js"
+import { isJSONSchemaObject } from "./utils.js"
+import { collectEndpoints } from "./collect.js"
 export type * as Types from "./api.types.js"
 
 // MARK: endpointJsonFn
@@ -77,6 +80,72 @@ export class Endpoint<
 		})
 	})
 
+	async generateOperation(): Promise<OpenAPIV3.OperationObject> {
+		const { parameters, requestBody, responses, ...configRest } = this.#config
+		const operation: OpenAPIV3.OperationObject = { ...configRest, responses: {} }
+
+		if (parameters?.path) {
+			const pathSchema = zodToJsonSchema(parameters.path, { target: "openApi3" }) as unknown
+			if (isJSONSchemaObject(pathSchema) && pathSchema.properties) {
+				for (const [name, details] of Object.entries(pathSchema.properties)) {
+					operation.parameters ??= []
+					operation.parameters.push({
+						name: name,
+						in: "path",
+						required: pathSchema.required && pathSchema.required.includes(name),
+						// @ts-expect-error - TODO
+						...details,
+					})
+				}
+			}
+		}
+
+		if (parameters?.query) {
+			const querySchema = zodToJsonSchema(parameters.query, { target: "openApi3" }) as unknown
+
+			if (isJSONSchemaObject(querySchema) && querySchema.properties) {
+				for (const [name, details] of Object.entries(querySchema.properties)) {
+					operation.parameters ??= []
+					operation.parameters.push({
+						name,
+						in: "query",
+						required: querySchema.required && querySchema.required.includes(name),
+						// @ts-expect-error - TODO
+						...details,
+					})
+				}
+			}
+		}
+
+		if (requestBody) {
+			const bodySchema = zodToJsonSchema(requestBody, { target: "openApi3" }) as unknown
+			if (isJSONSchemaObject(bodySchema)) {
+				operation.requestBody = {
+					content: {
+						"application/json": {
+							schema: bodySchema as OpenAPIV3.SchemaObject,
+						},
+					},
+				}
+			}
+		}
+
+		for (const [status, schema] of Object.entries(responses)) {
+			const responseSchema = zodToJsonSchema(schema, { target: "openApi3" }) as unknown
+			if (isJSONSchemaObject(responseSchema)) {
+				operation.responses[status] = {
+					content: {
+						"application/json": {
+							schema: responseSchema as OpenAPIV3.SchemaObject,
+						},
+					},
+				}
+			}
+		}
+
+		return operation
+	}
+
 	static #lookupSymbol = Symbol()
 	static #applyLookupSymbol(
 		endpoint: Endpoint<any, any, any, any>,
@@ -116,6 +185,27 @@ export class API<
 		callback: Types.EndpointCallback<Responses, Body, Path, Query>,
 	) {
 		return new Endpoint(this, config, callback).requestHandler
+	}
+
+	async generateDocument(): Promise<OpenAPIV3.Document> {
+		const document: OpenAPIV3.Document = {
+			...this.#baseDocument,
+			openapi: "3.0.0",
+			paths: {},
+		}
+
+		const collectedEndpoints = await collectEndpoints()
+		for (const [path, endpoints] of Object.entries(collectedEndpoints)) {
+			for (const [method, endpoint] of Object.entries(endpoints)) {
+				if (endpoint._api !== this) continue
+				document.paths[path] ??= {}
+
+				// @ts-expect-error - TODO
+				document.paths[path][method] = await endpoint.generateOperation()
+			}
+		}
+
+		return document
 	}
 
 	static create<Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined>(

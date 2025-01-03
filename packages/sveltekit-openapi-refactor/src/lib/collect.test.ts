@@ -7,7 +7,7 @@ describe("collectEndpoints", () => {
 	test("It should extract endpoints from all routes", async () => {
 		const testApi = api({ info: { title: "TestAPI", version: "0.0.0" } })
 		const testEndpoint = new Endpoint(testApi, { responses: {} }, () => new Response())
-		const collectedEndpoints = await collectEndpoints(() => ({
+		const collectedEndpoints = await collectEndpoints({
 			[`${ROUTE_PREFIX}/api/todos/+server.js`]: async () => ({
 				GET: testEndpoint.requestHandler,
 				POST: testEndpoint.requestHandler,
@@ -17,7 +17,7 @@ describe("collectEndpoints", () => {
 				POST: testEndpoint.requestHandler,
 				PATCH: testEndpoint.requestHandler,
 			}),
-		}))
+		})
 
 		expect(collectedEndpoints).toEqual({
 			"/api/todos": { get: testEndpoint, post: testEndpoint },

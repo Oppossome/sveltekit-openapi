@@ -28,7 +28,7 @@ export const GET = todoAPI.endpoint(
 
 				if (params.query.search) {
 					const searchStr = params.query.search.toLowerCase()
-					if (todo.title.toLowerCase().includes(searchStr)) return false
+					if (!todo.title.toLowerCase().includes(searchStr)) return false
 				}
 
 				return true
