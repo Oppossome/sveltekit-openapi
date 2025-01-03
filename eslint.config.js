@@ -59,6 +59,11 @@ export default ts.config(
 							group: "internal",
 							position: "after",
 						},
+						// Package alias
+						{
+							pattern: "sveltekit-openapi",
+							group: "external",
+						},
 					],
 					groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
 				},

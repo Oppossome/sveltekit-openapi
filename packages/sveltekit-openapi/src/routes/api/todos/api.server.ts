@@ -1,5 +1,4 @@
 import { z } from "zod"
-
 import { api } from "sveltekit-openapi"
 
 export const todoAPI = api({
