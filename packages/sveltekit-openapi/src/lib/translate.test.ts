@@ -72,6 +72,12 @@ describe("endpointToOperation", () => {
 					summary: "Create user",
 					description: "This can only be done by the logged in user.",
 					operationId: "createUser",
+					parameters: {
+						query: z.object({
+							optional: z.boolean().optional(),
+							required: z.boolean(),
+						}),
+					},
 					requestBody: z.object({
 						name: z.string().min(3),
 					}),
@@ -89,6 +95,20 @@ describe("endpointToOperation", () => {
 				summary: "Create user",
 				description: "This can only be done by the logged in user.",
 				operationId: "createUser",
+				parameters: [
+					{
+						in: "query",
+						name: "optional",
+						required: false,
+						type: "boolean",
+					},
+					{
+						in: "query",
+						name: "required",
+						required: true,
+						type: "boolean",
+					},
+				],
 				requestBody: {
 					content: {
 						"application/json": {

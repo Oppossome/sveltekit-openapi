@@ -7,7 +7,6 @@ export const api = defineApi({
 		description: "This API is designed to facilitate development of the sveltekit-openapi package.",
 		version: "0.0.1",
 	},
-	tags: [{ name: "development" }],
 	servers: [{ url: "http://localhost:5173" }],
 })
 
