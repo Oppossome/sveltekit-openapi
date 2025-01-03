@@ -1,11 +1,11 @@
-import { api, Endpoint } from "./api.js"
+import { defineApi, Endpoint } from "./api.js"
 import { collectEndpoints, resolveRoutes } from "./collect.js"
 
 const ROUTE_PREFIX = "~/projects/svelte-app/src/routes"
 
 describe("collectEndpoints", () => {
 	test("It should extract endpoints from all routes", async () => {
-		const testApi = api({ info: { title: "TestAPI", version: "0.0.0" } })
+		const testApi = defineApi({ info: { title: "TestAPI", version: "0.0.0" } })
 		const testEndpoint = new Endpoint(testApi, { responses: {} }, () => new Response())
 		const collectedEndpoints = await collectEndpoints({
 			[`${ROUTE_PREFIX}/api/todos/+server.js`]: async () => ({
