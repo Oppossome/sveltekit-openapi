@@ -1,8 +1,8 @@
 import { z } from "zod"
 
-import { todoAPI, schemas, todosStore } from "../api.server.js"
+import { api, schemas, todosStore } from "$lib/server/api"
 
-export const GET = todoAPI.endpoint(
+export const GET = api.defineEndpoint(
 	{
 		operationId: "getTodo",
 		parameters: {
@@ -22,7 +22,7 @@ export const GET = todoAPI.endpoint(
 	},
 )
 
-export const PATCH = todoAPI.endpoint(
+export const PATCH = api.defineEndpoint(
 	{
 		operationId: "patchTodo",
 		parameters: { path: z.object({ todo_id: z.string().uuid() }) },

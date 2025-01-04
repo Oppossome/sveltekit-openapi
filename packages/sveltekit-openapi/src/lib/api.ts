@@ -1,5 +1,5 @@
 import { error, json, type RequestHandler } from "@sveltejs/kit"
-import { OpenAPIV3 } from "openapi-types"
+import type { OpenAPIV3 } from "openapi-types"
 import type { z } from "zod"
 
 import type * as Types from "./api.types.js"
@@ -106,7 +106,7 @@ export class API<
 		this._baseDocument = baseDocument
 	}
 
-	endpoint<
+	defineEndpoint<
 		Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
 		Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
 		Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
@@ -129,8 +129,8 @@ export class API<
 	}
 }
 
-// MARK: api()
+// MARK: defineApi()
 
-export const api = API.create
+export const defineApi = API.create
 
 export * as Types from "./api.types.js"

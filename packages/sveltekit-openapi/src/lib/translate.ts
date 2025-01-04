@@ -29,13 +29,15 @@ export function endpointToOperation(endpoint: Endpoint): OpenAPIV3.OperationObje
 	for (const paramType of ["path", "query"] as const) {
 		if (parameters?.[paramType]) {
 			const paramsSchema = zodToJsonObjectSchema(parameters[paramType])
-			for (const [param, paramSchema] of Object.entries(paramsSchema)) {
+			if (!paramsSchema.properties) continue // No properties to iterate over
+
+			for (const [param, schema] of Object.entries(paramsSchema.properties)) {
 				operation.parameters ??= []
 				operation.parameters.push({
+					...schema,
 					name: param,
 					in: paramType,
 					required: paramsSchema.required && paramsSchema.required.includes(param),
-					...paramSchema,
 				})
 			}
 		}
