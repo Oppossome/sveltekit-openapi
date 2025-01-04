@@ -1,6 +1,6 @@
 {
 	"name": "sveltekit-openapi",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"license": "MIT",
 	"author": "Oppossome",
 	"repository": {
@@ -35,6 +35,10 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
+		},
+		"ui": {
+			"types": "./dist/ui/index.d.ts",
+			"svelte": "./dist/ui/index.js"
 		}
 	},
 	"peerDependencies": {
