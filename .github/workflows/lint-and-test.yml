@@ -16,8 +16,28 @@ jobs:
           node-version: "20"
           cache: "pnpm"
 
+      # Due to changeset-release branches having updates applicable for a release, package installation
+      # doesn't work due to examples' sveltekit-openapi package matching a non-existant version. To fix this,
+      # we force the dependency to be a workspace:* one.
+      - uses: actions/github-script@v7
+        name: Update example sveltekit-openapi version
+        with:
+          script: |
+            const fs = require("fs")
+
+            for (const node of fs.readdirSync("./examples", { withFileTypes: true })) {
+            	if (!node.isDirectory()) continue
+
+            	const filePath = `./examples/${node.name}/package.json`
+            	if (!fs.existsSync(filePath)) continue
+
+            	let content = fs.readFileSync(filePath, "utf-8")
+            	content = content.replace(/"sveltekit-openapi": ".*"/, '"sveltekit-openapi": "workspace:*"')
+            	fs.writeFileSync(filePath, content, "utf-8")
+            }
+
       - name: Install Dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       # # Uncomment when utilizing playwright
       # - name: Install Playwright Dependencies
