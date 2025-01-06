@@ -22,12 +22,10 @@ jobs:
           script: |
             const fs = require("fs")
 
-            const BASEPATH = "../../examples"
-
-            for (const node of fs.readdirSync(BASEPATH, { withFileTypes: true })) {
+            for (const node of fs.readdirSync("./examples", { withFileTypes: true })) {
             	if (!node.isDirectory()) continue
 
-            	const filePath = `${BASEPATH}/${node.name}/package.json`
+            	const filePath = `./examples/${node.name}/package.json`
             	if (!fs.existsSync(filePath)) continue
 
             	let content = fs.readFileSync(filePath, "utf-8")
