@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: 5ofygmfi32tkkh3u7t7sz24aci
+
 importers:
 
   .:
@@ -42,8 +44,8 @@ importers:
   examples/todos-api:
     dependencies:
       sveltekit-openapi:
-        specifier: 0.0.4
-        version: 0.0.4(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.0)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.0)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.0)(zod@3.24.1)
+        specifier: workspace:*
+        version: link:../../packages/sveltekit-openapi
       zod:
         specifier: ^3.0.0
         version: 3.24.1
@@ -2403,13 +2405,6 @@ packages:
   svelte@5.16.0:
     resolution: {integrity: sha512-Ygqsiac6UogVED2ruKclU+pOeMThxWtp9LG+li7BXeDKC2paVIsRTMkNmcON4Zejerd1s5sZHWx6ZtU85xklVg==}
     engines: {node: '>=18'}
-
-  sveltekit-openapi@0.0.4:
-    resolution: {integrity: sha512-mjMRaeAz0TTkxpv3QK6GhsjgZ25ym3TOnMT1IxnWiWzydCqPCkffbrhU9zaU9ccDPHzamUCoPKMl3XOqPG54AQ==}
-    peerDependencies:
-      '@sveltejs/kit': ^2.0.0
-      svelte: ^5.0.0
-      zod: ^3.0.0
 
   swagger-client@3.33.1:
     resolution: {integrity: sha512-E27FptQgG7mTtyC1yCLStyz03QtcVhmgrg0ESGLoncnYZppZcxRfsJkaZLYwk59XE0KcsBjWDydWSHE411vIyQ==}
@@ -5356,17 +5351,6 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.17
       zimmerframe: 1.1.2
-
-  sveltekit-openapi@0.0.4(@sveltejs/kit@2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.0)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.0)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.0)(zod@3.24.1):
-    dependencies:
-      '@sveltejs/kit': 2.15.1(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.16.0)(vite@5.4.11(@types/node@22.10.5)))(svelte@5.16.0)(vite@5.4.11(@types/node@22.10.5))
-      svelte: 5.16.0
-      swagger-ui: 5.18.2
-      zod: 3.24.1
-      zod-to-json-schema: 3.24.1(zod@3.24.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - debug
 
   swagger-client@3.33.1:
     dependencies:
