@@ -1,5 +1,5 @@
 {
-	"name": "sveltekit-openapi/todos-api-example",
+	"name": "sk-oapi-example/todos-api",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",

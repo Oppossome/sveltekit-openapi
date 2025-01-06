@@ -1,7 +1,7 @@
 import { z } from "zod"
-import { defineApi } from "sveltekit-openapi"
+import { defineAPI } from "sveltekit-openapi"
 
-export const api = defineApi({
+export const api = defineAPI({
 	info: {
 		title: "Todos API",
 		description: "This API is designed to facilitate development of the sveltekit-openapi package.",

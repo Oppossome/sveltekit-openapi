@@ -118,19 +118,17 @@ export class API<
 		return new Endpoint(this, config, callback).requestHandler
 	}
 
-	async generateOpenAPI(): Promise<OpenAPIV3.Document> {
+	async generateSpec(): Promise<OpenAPIV3.Document> {
 		return apiToOAPIDocument(this)
-	}
-
-	static create<Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined>(
-		document: Types.BaseV3Document<Tags>,
-	) {
-		return new API(document)
 	}
 }
 
-// MARK: defineApi()
+// MARK: defineAPI()
 
-export const defineApi = API.create
+export function defineAPI<
+	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
+>(document: Types.BaseV3Document<Tags>) {
+	return new API(document)
+}
 
 export * as Types from "./api.types.js"
