@@ -20,7 +20,7 @@ jobs:
         name: Update example sveltekit-openapi version
         with:
           script: |
-            import * as fs from "fs"
+            const fs = require("fs")
 
             const BASEPATH = "../../examples"
 
