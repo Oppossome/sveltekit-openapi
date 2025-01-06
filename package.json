@@ -7,10 +7,14 @@
 	"packageManager": "pnpm@9.12.2",
 	"type": "module",
 	"scripts": {
+		"build": "pnpm -r --filter=./packages/* build",
 		"lint": "prettier --check . && eslint .",
-		"lint:fix": "prettier --write . && eslint --fix ."
+		"lint:fix": "prettier --write . && eslint --fix .",
+		"changeset:version": "changeset version && pnpm -r generate:version && git add --all",
+		"changeset:publish": "changeset publish"
 	},
 	"devDependencies": {
+		"@changesets/cli": "^2.27.11",
 		"eslint": "^9.17.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-import-resolver-typescript": "^3.7.0",

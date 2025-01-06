@@ -1,13 +1,12 @@
 import { z } from "zod"
-import { api } from "sveltekit-openapi"
+import { defineAPI } from "sveltekit-openapi"
 
-export const todoAPI = api({
+export const api = defineAPI({
 	info: {
 		title: "Todos API",
 		description: "This API is designed to facilitate development of the sveltekit-openapi package.",
 		version: "0.0.1",
 	},
-	tags: [{ name: "development" }],
 	servers: [{ url: "http://localhost:5173" }],
 })
 
