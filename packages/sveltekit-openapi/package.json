@@ -8,6 +8,10 @@
 		"url": "https://github.com/Oppossome/sveltekit-openapi.git",
 		"directory": "packages/sveltekit-openapi"
 	},
+	"keywords": [
+		"sveltekit",
+		"openapi"
+	],
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && pnpm run package",
