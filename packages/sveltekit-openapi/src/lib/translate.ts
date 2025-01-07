@@ -2,7 +2,7 @@ import type { OpenAPIV3 } from "openapi-types"
 import { z } from "zod"
 import { zodToJsonSchema } from "zod-to-json-schema"
 
-import type { API, Endpoint } from "./api.js"
+import type { AnyEndpoint, API } from "./api.js"
 import { collectEndpoints } from "./collect.js"
 
 const basicJSONObjectSchema = z
@@ -22,7 +22,7 @@ export function zodToJsonObjectSchema(input: z.AnyZodObject) {
 /**
  * Translates a {@link Endpoint} into its OpenAPI operation representation.
  */
-export function endpointToOperation(endpoint: Endpoint): OpenAPIV3.OperationObject {
+export function endpointToOperation(endpoint: AnyEndpoint): OpenAPIV3.OperationObject {
 	const { parameters, requestBody, responses, ...config } = endpoint._config
 	const operation: OpenAPIV3.OperationObject = { ...config, responses: {} }
 

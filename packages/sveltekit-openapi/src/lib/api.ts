@@ -25,9 +25,9 @@ export function endpointJsonFn<
 export class Endpoint<
 	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
 	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-	Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+	Body extends z.AnyZodObject | undefined = undefined,
+	Path extends z.AnyZodObject | undefined = undefined,
+	Query extends z.AnyZodObject | undefined = undefined,
 > {
 	_api: API<Tags> // Used for collection
 	_config: Types.EndpointConfig<Tags, Responses, Body, Path, Query>
@@ -78,10 +78,7 @@ export class Endpoint<
 	})
 
 	static #lookupSymbol = Symbol()
-	static #applyLookupSymbol(
-		endpoint: Endpoint<any, any, any, any>,
-		input: RequestHandler,
-	): RequestHandler {
+	static #applyLookupSymbol(endpoint: AnyEndpoint, input: RequestHandler): RequestHandler {
 		// @ts-expect-error - Intentionally untyped
 		input[Endpoint.#lookupSymbol] = endpoint
 		return input
@@ -94,6 +91,14 @@ export class Endpoint<
 		}
 	}
 }
+
+export type AnyEndpoint = Endpoint<
+	OpenAPIV3.TagObject[] | undefined,
+	Record<number, z.AnyZodObject>,
+	z.AnyZodObject | undefined,
+	z.AnyZodObject | undefined,
+	z.AnyZodObject | undefined
+>
 
 // MARK: API Class
 
@@ -108,9 +113,9 @@ export class API<
 
 	defineEndpoint<
 		Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-		Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-		Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-		Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+		Body extends z.AnyZodObject | undefined = undefined,
+		Path extends z.AnyZodObject | undefined = undefined,
+		Query extends z.AnyZodObject | undefined = undefined,
 	>(
 		config: Types.EndpointConfig<Tags, Responses, Body, Path, Query>,
 		callback: Types.EndpointCallback<Responses, Body, Path, Query>,

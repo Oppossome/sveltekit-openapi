@@ -9,9 +9,9 @@ import type { endpointJsonFn } from "./api.js"
 export interface EndpointConfig<
 	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
 	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-	Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+	Body extends z.AnyZodObject | undefined = undefined,
+	Path extends z.AnyZodObject | undefined = undefined,
+	Query extends z.AnyZodObject | undefined = undefined,
 > {
 	tags?: Tags extends OpenAPIV3.TagObject[] ? Tags[number]["name"][] : string[]
 	summary?: string
@@ -35,9 +35,9 @@ export type EndpointCallbackJsonFn<
 
 export type EndpointCallback<
 	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-	Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+	Body extends z.AnyZodObject | undefined = undefined,
+	Path extends z.AnyZodObject | undefined = undefined,
+	Query extends z.AnyZodObject | undefined = undefined,
 > = (
 	event: Omit<RequestEvent, "params"> & {
 		json: ReturnType<typeof endpointJsonFn<Responses>>
