@@ -18,6 +18,8 @@ vi.mock("./collect.js", async (importOriginal) => ({
 // MARK: zodToJsonObjectSchema
 
 describe("zodToJsonObjectSchema", () => {
+	const repeatedSchema = z.object({ name: z.string(), age: z.number() })
+
 	test.each<{ name: string; input: z.AnyZodObject; output: unknown }>([
 		{
 			name: "Ok",
@@ -49,6 +51,36 @@ describe("zodToJsonObjectSchema", () => {
 				type: "object",
 				properties: {},
 				additionalProperties: false,
+			},
+		},
+		{
+			name: "Repeating",
+			input: repeatedSchema.extend({ other: repeatedSchema }),
+			output: {
+				additionalProperties: false,
+				properties: {
+					age: {
+						type: "number",
+					},
+					name: {
+						type: "string",
+					},
+					other: {
+						additionalProperties: false,
+						properties: {
+							age: {
+								type: "number",
+							},
+							name: {
+								type: "string",
+							},
+						},
+						required: ["name", "age"],
+						type: "object",
+					},
+				},
+				required: ["name", "age", "other"],
+				type: "object",
 			},
 		},
 	])("$name", ({ input, output }) => {
