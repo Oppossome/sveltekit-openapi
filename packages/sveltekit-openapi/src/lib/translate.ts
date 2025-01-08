@@ -15,7 +15,11 @@ const basicJSONObjectSchema = z
 	.passthrough()
 
 export function zodToJsonObjectSchema(input: z.AnyZodObject) {
-	const translatedSchema = zodToJsonSchema(input, { target: "openApi3" }) as unknown
+	const translatedSchema = zodToJsonSchema(input, {
+		$refStrategy: "none",
+		target: "openApi3",
+	}) as unknown
+
 	return basicJSONObjectSchema.parse(translatedSchema) as OpenAPIV3.SchemaObject
 }
 
