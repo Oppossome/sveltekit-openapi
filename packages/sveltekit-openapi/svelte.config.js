@@ -22,6 +22,8 @@ const config = {
 			 */
 			"sveltekit-openapi": resolve("./src/lib/index.js"),
 			"sveltekit-openapi/*": resolve("./src/lib/"),
+			"sveltekit-openapi/ui": resolve("./src/lib/ui/index.js"),
+			"sveltekit-openapi/ui/*": resolve("./src/lib/ui/"),
 		},
 	},
 }
