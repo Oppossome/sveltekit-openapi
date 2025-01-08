@@ -70,13 +70,15 @@ export const POST = myAPI.defineEndpoint({
   }),
   // Only the responses object is required
   responses: {
-    201: z.object({
-      user: z.object({
-        id: z.string(),
-        name: z.string(),
-        age: z.number(),
+    201: {
+      content: z.object({
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          age: z.number(),
+        })
       })
-    }),
+    },
   }
 }, ({ params, json }) => {
   // The params object is stictly typed based on the provided parameters schema

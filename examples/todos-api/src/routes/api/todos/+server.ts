@@ -12,9 +12,11 @@ export const GET = api.defineEndpoint(
 			}),
 		},
 		responses: {
-			200: z.object({
-				todos: z.array(schemas.todo),
-			}),
+			200: {
+				content: z.object({
+					todos: z.array(schemas.todo),
+				}),
+			},
 		},
 	},
 	({ params, json }) => {
@@ -42,9 +44,11 @@ export const POST = api.defineEndpoint(
 		operationId: "createTodo",
 		requestBody: schemas.newTodo,
 		responses: {
-			200: z.object({
-				todo: schemas.todo,
-			}),
+			200: {
+				content: z.object({
+					todo: schemas.todo,
+				}),
+			},
 		},
 	},
 	({ params, json }) => {

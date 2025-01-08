@@ -11,8 +11,12 @@ export const GET = api.defineEndpoint(
 			}),
 		},
 		responses: {
-			200: z.object({ todo: schemas.todo }),
-			404: z.object({ message: z.string() }),
+			200: {
+				content: z.object({ todo: schemas.todo }),
+			},
+			404: {
+				content: z.object({ message: z.string() }),
+			},
 		},
 	},
 	({ params, json }) => {
@@ -28,8 +32,8 @@ export const PATCH = api.defineEndpoint(
 		parameters: { path: z.object({ todo_id: z.string().uuid() }) },
 		requestBody: schemas.newTodo,
 		responses: {
-			200: z.object({ todo: schemas.todo }),
-			404: z.object({ message: z.string() }),
+			200: { content: z.object({ todo: schemas.todo }) },
+			404: { content: z.object({ message: z.string() }) },
 		},
 	},
 	({ params, json }) => {

@@ -82,10 +82,12 @@ describe("endpointToOperation", () => {
 						name: z.string().min(3),
 					}),
 					responses: {
-						200: z.object({
-							id: z.string().uuid(),
-							name: z.string().min(3),
-						}),
+						200: {
+							content: z.object({
+								id: z.string().uuid(),
+								name: z.string().min(3),
+							}),
+						},
 					},
 				},
 				() => new Response(),

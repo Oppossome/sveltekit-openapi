@@ -6,7 +6,9 @@ export const GET = api.defineEndpoint(
 	{
 		operationId: "204NoContent",
 		responses: {
-			204: z.object({}),
+			204: {
+				content: z.object({}),
+			},
 		},
 	},
 	({ json }) => {

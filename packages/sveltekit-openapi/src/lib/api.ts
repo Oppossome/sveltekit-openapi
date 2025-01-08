@@ -8,14 +8,14 @@ import { apiToOAPIDocument } from "./translate.js"
 // MARK: endpointJsonFn
 
 export function endpointJsonFn<
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
+	Responses extends Record<number, Types.EndpointResponse> = Record<number, Types.EndpointResponse>,
 >(config: Types.EndpointConfig<any, Responses, any, any, any>) {
 	return <Status extends keyof Responses & number>(
 		statusOrInit: Status | (ResponseInit & { status: Status }),
-		body: z.input<Responses[Status]>,
+		body: z.input<Responses[Status]["content"]>,
 	) => {
 		const responseInit = typeof statusOrInit === "number" ? { status: statusOrInit } : statusOrInit
-		const responseBody = config.responses[responseInit.status].parse(body)
+		const responseBody = config.responses[responseInit.status].content.parse(body)
 		return json(responseBody, responseInit)
 	}
 }
@@ -24,7 +24,7 @@ export function endpointJsonFn<
 
 export class Endpoint<
 	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
+	Responses extends Record<number, Types.EndpointResponse> = Record<number, Types.EndpointResponse>,
 	Body extends z.AnyZodObject | undefined = undefined,
 	Path extends z.AnyZodObject | undefined = undefined,
 	Query extends z.AnyZodObject | undefined = undefined,
@@ -104,7 +104,10 @@ export class API<
 	}
 
 	defineEndpoint<
-		Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
+		Responses extends Record<number, Types.EndpointResponse> = Record<
+			number,
+			Types.EndpointResponse
+		>,
 		Body extends z.AnyZodObject | undefined = undefined,
 		Path extends z.AnyZodObject | undefined = undefined,
 		Query extends z.AnyZodObject | undefined = undefined,

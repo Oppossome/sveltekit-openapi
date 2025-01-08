@@ -54,8 +54,8 @@ export function endpointToOperation(endpoint: Types.AnyEndpoint): OpenAPIV3.Oper
 		}
 	}
 
-	for (const [statusCode, zodSchema] of Object.entries(responses)) {
-		const responseSchema = zodToJsonObjectSchema(zodSchema)
+	for (const [statusCode, statusConfig] of Object.entries(responses)) {
+		const responseSchema = zodToJsonObjectSchema(statusConfig.content)
 		//@ts-expect-error TODO: Mandetory description field
 		operation.responses[statusCode] = {
 			content: {
