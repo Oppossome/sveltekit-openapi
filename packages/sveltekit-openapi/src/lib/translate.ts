@@ -59,19 +59,15 @@ export function endpointToOperation(endpoint: Types.AnyEndpoint): OpenAPIV3.Oper
 	}
 
 	for (const [statusCode, statusConfig] of Object.entries(responses)) {
-		if (!statusConfig.content) {
-			//@ts-expect-error - Description isn't mandetory afaik (Shoot me if I'm wrong)
-			operation.responses[statusCode] = { description: statusConfig.description }
-			continue
+		operation.responses[statusCode] = {} as OpenAPIV3.ResponseObject
+
+		if (statusConfig.description) {
+			operation.responses[statusCode].description = statusConfig.description
 		}
 
-		const responseSchema = zodToJsonObjectSchema(statusConfig.content)
-		operation.responses[statusCode] = {
-			content: {
-				//@ts-expect-error - Description isn't mandetory afaik (Shoot me if I'm wrong)
-				description: statusConfig.description,
-				"application/json": { schema: responseSchema },
-			},
+		if (statusConfig.content) {
+			const responseSchema = zodToJsonObjectSchema(statusConfig.content)
+			operation.responses[statusCode].content = { "application/json": { schema: responseSchema } }
 		}
 	}
 

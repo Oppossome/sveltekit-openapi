@@ -115,6 +115,7 @@ describe("endpointToOperation", () => {
 					}),
 					responses: {
 						200: {
+							description: "User created",
 							content: z.object({
 								id: z.string().uuid(),
 								name: z.string().min(3),
@@ -157,6 +158,7 @@ describe("endpointToOperation", () => {
 				},
 				responses: {
 					200: {
+						description: "User created",
 						content: {
 							"application/json": {
 								schema: {
