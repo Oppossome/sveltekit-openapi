@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { defineAPI, Endpoint } from "./api.js"
+import { defineAPI, Endpoint, type Types } from "./api.js"
 import { collectEndpoints } from "./collect.js"
 import { endpointToOperation, apiToOAPIDocument, zodToJsonObjectSchema } from "./translate.js"
 
@@ -62,7 +62,7 @@ describe("zodToJsonObjectSchema", () => {
 describe("endpointToOperation", () => {
 	const testAPI = defineAPI({ info: { title: "testApi", version: "0.0.0" } })
 
-	test.each<{ name: string; input: Endpoint; output: Record<string, unknown> }>([
+	test.each<{ name: string; input: Types.AnyEndpoint; output: Record<string, unknown> }>([
 		{
 			name: "Standard Endpoint",
 			input: new Endpoint(
@@ -82,10 +82,12 @@ describe("endpointToOperation", () => {
 						name: z.string().min(3),
 					}),
 					responses: {
-						200: z.object({
-							id: z.string().uuid(),
-							name: z.string().min(3),
-						}),
+						200: {
+							content: z.object({
+								id: z.string().uuid(),
+								name: z.string().min(3),
+							}),
+						},
 					},
 				},
 				() => new Response(),

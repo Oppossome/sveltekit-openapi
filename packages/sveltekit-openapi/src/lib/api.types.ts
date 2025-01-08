@@ -2,16 +2,23 @@ import type { RequestEvent } from "@sveltejs/kit"
 import type { OpenAPIV3 } from "openapi-types"
 import type { z } from "zod"
 
-import type { endpointJsonFn } from "./api.js"
+import type { Endpoint, endpointJsonFn } from "./api.js"
 
 // MARK: Endpoint Types
 
+export interface EndpointResponse<
+	Schema extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+> {
+	description?: string
+	content: Schema
+}
+
 export interface EndpointConfig<
 	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-	Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+	Responses extends Record<number, EndpointResponse> = Record<number, EndpointResponse>,
+	Body extends z.AnyZodObject | undefined = undefined,
+	Path extends z.AnyZodObject | undefined = undefined,
+	Query extends z.AnyZodObject | undefined = undefined,
 > {
 	tags?: Tags extends OpenAPIV3.TagObject[] ? Tags[number]["name"][] : string[]
 	summary?: string
@@ -27,17 +34,19 @@ export interface EndpointConfig<
 }
 
 export type EndpointCallbackJsonFn<
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
+	Responses extends Record<number, EndpointResponse> = Record<number, EndpointResponse>,
 > = <Status extends keyof Responses & number>(
 	statusOrInit: Status | (ResponseInit & { status: Status }),
-	body: z.input<Responses[Status]>,
+	...rest: Responses[Status]["content"] extends z.AnyZodObject
+		? [body: z.input<Responses[Status]["content"]>]
+		: []
 ) => Promise<Response>
 
 export type EndpointCallback<
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-	Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+	Responses extends Record<number, EndpointResponse> = Record<number, EndpointResponse>,
+	Body extends z.AnyZodObject | undefined = undefined,
+	Path extends z.AnyZodObject | undefined = undefined,
+	Query extends z.AnyZodObject | undefined = undefined,
 > = (
 	event: Omit<RequestEvent, "params"> & {
 		json: ReturnType<typeof endpointJsonFn<Responses>>
@@ -48,6 +57,14 @@ export type EndpointCallback<
 		}
 	},
 ) => Promise<Response> | Response
+
+export type AnyEndpoint = Endpoint<
+	OpenAPIV3.TagObject[] | undefined,
+	Record<number, EndpointResponse>,
+	z.AnyZodObject | undefined,
+	z.AnyZodObject | undefined,
+	z.AnyZodObject | undefined
+>
 
 // MARK: API Types
 

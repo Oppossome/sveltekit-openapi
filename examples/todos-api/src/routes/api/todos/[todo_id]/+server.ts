@@ -11,13 +11,18 @@ export const GET = api.defineEndpoint(
 			}),
 		},
 		responses: {
-			200: z.object({ todo: schemas.todo }),
-			404: z.object({ message: z.string() }),
+			200: {
+				content: z.object({ todo: schemas.todo }),
+			},
+			404: {
+				content: z.object({ message: z.string() }),
+			},
 		},
 	},
 	({ params, json }) => {
 		const todo = todosStore.get(params.path.todo_id)
 		if (!todo) return json(404, { message: `Todo ${params.path.todo_id} Not Found!` })
+
 		return json(200, { todo })
 	},
 )
@@ -28,8 +33,8 @@ export const PATCH = api.defineEndpoint(
 		parameters: { path: z.object({ todo_id: z.string().uuid() }) },
 		requestBody: schemas.newTodo,
 		responses: {
-			200: z.object({ todo: schemas.todo }),
-			404: z.object({ message: z.string() }),
+			200: { content: z.object({ todo: schemas.todo }) },
+			404: { content: z.object({ message: z.string() }) },
 		},
 	},
 	({ params, json }) => {
@@ -39,5 +44,23 @@ export const PATCH = api.defineEndpoint(
 		todo.title = params.body.title
 		todo.done = params.body.done
 		return json(200, { todo })
+	},
+)
+
+export const DELETE = api.defineEndpoint(
+	{
+		operationId: "deleteTodo",
+		parameters: { path: z.object({ todo_id: z.string().uuid() }) },
+		responses: {
+			204: { content: undefined },
+			404: { content: z.object({ message: z.string() }) },
+		},
+	},
+	({ params, json }) => {
+		if (!todosStore.delete(params.path.todo_id)) {
+			return json(404, { message: `Todo ${params.path.todo_id} Not Found!` })
+		}
+
+		return json(204)
 	},
 )

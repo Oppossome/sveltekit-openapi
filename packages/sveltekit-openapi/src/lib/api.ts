@@ -8,14 +8,22 @@ import { apiToOAPIDocument } from "./translate.js"
 // MARK: endpointJsonFn
 
 export function endpointJsonFn<
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
+	Responses extends Record<number, Types.EndpointResponse> = Record<number, Types.EndpointResponse>,
 >(config: Types.EndpointConfig<any, Responses, any, any, any>) {
 	return <Status extends keyof Responses & number>(
 		statusOrInit: Status | (ResponseInit & { status: Status }),
-		body: z.input<Responses[Status]>,
+		...[body]: Responses[Status]["content"] extends z.AnyZodObject
+			? [body: z.input<Responses[Status]["content"]>]
+			: []
 	) => {
 		const responseInit = typeof statusOrInit === "number" ? { status: statusOrInit } : statusOrInit
-		const responseBody = config.responses[responseInit.status].parse(body)
+		const responseSchema = config.responses[responseInit.status].content
+
+		if (!responseSchema) {
+			return new Response(null, { status: responseInit.status })
+		}
+
+		const responseBody = responseSchema.parse(body)
 		return json(responseBody, responseInit)
 	}
 }
@@ -24,10 +32,10 @@ export function endpointJsonFn<
 
 export class Endpoint<
 	Tags extends OpenAPIV3.TagObject[] | undefined = OpenAPIV3.TagObject[] | undefined,
-	Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-	Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-	Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+	Responses extends Record<number, Types.EndpointResponse> = Record<number, Types.EndpointResponse>,
+	Body extends z.AnyZodObject | undefined = undefined,
+	Path extends z.AnyZodObject | undefined = undefined,
+	Query extends z.AnyZodObject | undefined = undefined,
 > {
 	_api: API<Tags> // Used for collection
 	_config: Types.EndpointConfig<Tags, Responses, Body, Path, Query>
@@ -78,10 +86,7 @@ export class Endpoint<
 	})
 
 	static #lookupSymbol = Symbol()
-	static #applyLookupSymbol(
-		endpoint: Endpoint<any, any, any, any>,
-		input: RequestHandler,
-	): RequestHandler {
+	static #applyLookupSymbol(endpoint: Types.AnyEndpoint, input: RequestHandler): RequestHandler {
 		// @ts-expect-error - Intentionally untyped
 		input[Endpoint.#lookupSymbol] = endpoint
 		return input
@@ -107,10 +112,13 @@ export class API<
 	}
 
 	defineEndpoint<
-		Responses extends Record<number, z.AnyZodObject> = Record<number, z.AnyZodObject>,
-		Body extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-		Path extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
-		Query extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+		Responses extends Record<number, Types.EndpointResponse> = Record<
+			number,
+			Types.EndpointResponse
+		>,
+		Body extends z.AnyZodObject | undefined = undefined,
+		Path extends z.AnyZodObject | undefined = undefined,
+		Query extends z.AnyZodObject | undefined = undefined,
 	>(
 		config: Types.EndpointConfig<Tags, Responses, Body, Path, Query>,
 		callback: Types.EndpointCallback<Responses, Body, Path, Query>,
