@@ -1,5 +1,11 @@
 # sveltekit-openapi
 
+## 0.2.2
+
+### Patch Changes
+
+- 9716324: fix: Output correct endpointToOperation description
+
 ## 0.2.1
 
 ### Patch Changes
