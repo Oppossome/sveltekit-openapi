@@ -2,7 +2,7 @@ import type { RequestEvent } from "@sveltejs/kit"
 import type { OpenAPIV3 } from "openapi-types"
 import type { z } from "zod"
 
-import type { endpointJsonFn } from "./api.js"
+import type { Endpoint, endpointJsonFn } from "./api.js"
 
 // MARK: Endpoint Types
 
@@ -48,6 +48,14 @@ export type EndpointCallback<
 		}
 	},
 ) => Promise<Response> | Response
+
+export type AnyEndpoint = Endpoint<
+	OpenAPIV3.TagObject[] | undefined,
+	Record<number, z.AnyZodObject>,
+	z.AnyZodObject | undefined,
+	z.AnyZodObject | undefined,
+	z.AnyZodObject | undefined
+>
 
 // MARK: API Types
 

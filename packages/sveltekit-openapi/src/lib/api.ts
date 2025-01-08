@@ -78,7 +78,7 @@ export class Endpoint<
 	})
 
 	static #lookupSymbol = Symbol()
-	static #applyLookupSymbol(endpoint: AnyEndpoint, input: RequestHandler): RequestHandler {
+	static #applyLookupSymbol(endpoint: Types.AnyEndpoint, input: RequestHandler): RequestHandler {
 		// @ts-expect-error - Intentionally untyped
 		input[Endpoint.#lookupSymbol] = endpoint
 		return input
@@ -91,14 +91,6 @@ export class Endpoint<
 		}
 	}
 }
-
-export type AnyEndpoint = Endpoint<
-	OpenAPIV3.TagObject[] | undefined,
-	Record<number, z.AnyZodObject>,
-	z.AnyZodObject | undefined,
-	z.AnyZodObject | undefined,
-	z.AnyZodObject | undefined
->
 
 // MARK: API Class
 
