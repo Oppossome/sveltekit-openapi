@@ -55,13 +55,18 @@ export function endpointToOperation(endpoint: Types.AnyEndpoint): OpenAPIV3.Oper
 	}
 
 	for (const [statusCode, statusConfig] of Object.entries(responses)) {
+		if (!statusConfig.content) {
+			//@ts-expect-error - Description isn't mandetory afaik (Shoot me if I'm wrong)
+			operation.responses[statusCode] = { description: statusConfig.description }
+			continue
+		}
+
 		const responseSchema = zodToJsonObjectSchema(statusConfig.content)
-		//@ts-expect-error TODO: Mandetory description field
 		operation.responses[statusCode] = {
 			content: {
-				"application/json": {
-					schema: responseSchema,
-				},
+				//@ts-expect-error - Description isn't mandetory afaik (Shoot me if I'm wrong)
+				description: statusConfig.description,
+				"application/json": { schema: responseSchema },
 			},
 		}
 	}

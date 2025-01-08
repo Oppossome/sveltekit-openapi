@@ -6,7 +6,9 @@ import type { Endpoint, endpointJsonFn } from "./api.js"
 
 // MARK: Endpoint Types
 
-export interface EndpointResponse<Schema extends z.AnyZodObject = z.AnyZodObject> {
+export interface EndpointResponse<
+	Schema extends z.AnyZodObject | undefined = z.AnyZodObject | undefined,
+> {
 	description?: string
 	content: Schema
 }
@@ -35,7 +37,9 @@ export type EndpointCallbackJsonFn<
 	Responses extends Record<number, EndpointResponse> = Record<number, EndpointResponse>,
 > = <Status extends keyof Responses & number>(
 	statusOrInit: Status | (ResponseInit & { status: Status }),
-	body: z.input<Responses[Status]["content"]>,
+	...rest: Responses[Status]["content"] extends z.AnyZodObject
+		? [body: z.input<Responses[Status]["content"]>]
+		: []
 ) => Promise<Response>
 
 export type EndpointCallback<

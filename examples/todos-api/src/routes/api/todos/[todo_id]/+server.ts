@@ -22,6 +22,7 @@ export const GET = api.defineEndpoint(
 	({ params, json }) => {
 		const todo = todosStore.get(params.path.todo_id)
 		if (!todo) return json(404, { message: `Todo ${params.path.todo_id} Not Found!` })
+
 		return json(200, { todo })
 	},
 )
@@ -43,5 +44,23 @@ export const PATCH = api.defineEndpoint(
 		todo.title = params.body.title
 		todo.done = params.body.done
 		return json(200, { todo })
+	},
+)
+
+export const DELETE = api.defineEndpoint(
+	{
+		operationId: "deleteTodo",
+		parameters: { path: z.object({ todo_id: z.string().uuid() }) },
+		responses: {
+			204: { content: undefined },
+			404: { content: z.object({ message: z.string() }) },
+		},
+	},
+	({ params, json }) => {
+		if (!todosStore.delete(params.path.todo_id)) {
+			return json(404, { message: `Todo ${params.path.todo_id} Not Found!` })
+		}
+
+		return json(204)
 	},
 )

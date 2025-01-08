@@ -12,10 +12,18 @@ export function endpointJsonFn<
 >(config: Types.EndpointConfig<any, Responses, any, any, any>) {
 	return <Status extends keyof Responses & number>(
 		statusOrInit: Status | (ResponseInit & { status: Status }),
-		body: z.input<Responses[Status]["content"]>,
+		...[body]: Responses[Status]["content"] extends z.AnyZodObject
+			? [body: z.input<Responses[Status]["content"]>]
+			: []
 	) => {
 		const responseInit = typeof statusOrInit === "number" ? { status: statusOrInit } : statusOrInit
-		const responseBody = config.responses[responseInit.status].content.parse(body)
+		const responseSchema = config.responses[responseInit.status].content
+
+		if (!responseSchema) {
+			return new Response(null, { status: responseInit.status })
+		}
+
+		const responseBody = responseSchema.parse(body)
 		return json(responseBody, responseInit)
 	}
 }
