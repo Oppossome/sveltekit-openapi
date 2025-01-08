@@ -1,5 +1,11 @@
 # sveltekit-openapi
 
+## 0.2.1
+
+### Patch Changes
+
+- 0fa4f0f: Use none $refStrategy
+
 ## 0.2.0
 
 ### Minor Changes
